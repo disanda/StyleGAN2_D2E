@@ -35,8 +35,8 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
     loss_imgs_kl = torch.where(torch.isnan(loss_imgs_kl),torch.full_like(loss_imgs_kl,0), loss_imgs_kl)
     loss_imgs_kl = torch.where(torch.isinf(loss_imgs_kl),torch.full_like(loss_imgs_kl,1), loss_imgs_kl)
 
-    imgs1_cos = imgs1.view(-1)
-    imgs2_cos = imgs2.view(-1)
+    imgs1_cos = imgs1.contiguous.view(-1)
+    imgs2_cos = imgs2.contiguous.view(-1)
     loss_imgs_cosine = 1 - imgs1_cos.dot(imgs2_cos)/(torch.sqrt(imgs1_cos.dot(imgs1_cos))*torch.sqrt(imgs2_cos.dot(imgs2_cos))) #[-1,1],-1:反向相反，1:方向相同
 
     if  image_space:

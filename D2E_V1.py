@@ -33,8 +33,8 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
     loss_imgs_kl = torch.where(torch.isnan(loss_imgs_kl),torch.full_like(loss_imgs_kl,0), loss_imgs_kl)
     loss_imgs_kl = torch.where(torch.isinf(loss_imgs_kl),torch.full_like(loss_imgs_kl,1), loss_imgs_kl)
 
-    imgs1_cos = imgs1.view(-1)
-    imgs2_cos = imgs2.view(-1)
+    imgs1_cos = imgs1.contiguous.view(-1)
+    imgs2_cos = imgs2.contiguous.view(-1)
     loss_imgs_cosine = 1 - imgs1_cos.dot(imgs2_cos)/(torch.sqrt(imgs1_cos.dot(imgs1_cos))*torch.sqrt(imgs2_cos.dot(imgs2_cos))) #[-1,1],-1:反向相反，1:方向相同
 
     if  image_space:
@@ -72,7 +72,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
-        z = torch.randn(batch_size, 512) #[32, 512]
+        z = torch.randn(batch_size, 512).cuda() #[32, 512]
         with torch.no_grad(): #这里需要生成图片和变量
             result_all = generator(z, **synthesis_kwargs)
             imgs1 = result_all['image']
