@@ -84,7 +84,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
-        z = torch.randn(batch_size, 512) #[32, 512]
+        z = torch.randn(batch_size, 512).cuda() #[32, 512]
         with torch.no_grad(): #这里需要生成图片和变量
             result_all = generator(z, **synthesis_kwargs)
             imgs1 = result_all['image']
