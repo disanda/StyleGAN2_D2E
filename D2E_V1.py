@@ -1,11 +1,12 @@
 #training StyleGANv2
 
+import os
 import torch
+import torchvision
 import model.E_v3 as BE
 import model.stylegan2_generator as model
 from model.utils.custom_adam import LREQAdam
 import metric.pytorch_ssim as pytorch_ssim
-import os
 import lpips
 import numpy as np
 import tensorboardX
