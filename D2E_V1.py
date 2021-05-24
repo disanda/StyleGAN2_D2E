@@ -4,6 +4,7 @@ import torch
 import model.E_v3 as BE
 import model.stylegan2_generator as model
 from model.utils.custom_adam import LREQAdam
+import metric.pytorch_ssim as pytorch_ssim
 import os
 import lpips
 import numpy as np
@@ -67,7 +68,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
 
     batch_size = 3
     const_r = torch.randn(batch_size)
-    const_1 = Gs.early_layer(const_r) #[n,512,4,4]
+    const1 = Gs.early_layer(const_r) #[n,512,4,4]
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
@@ -78,7 +79,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
             w1 = result_all['wp']
         const2,w2 = E(imgs1.cuda())
 
-        imgs2=Gs.forward(w2,6)
+        imgs2=Gs(w2)['image']
 
         E_optimizer.zero_grad()
 
@@ -214,7 +215,10 @@ if __name__ == "__main__":
     if not os.path.exists(writer_path): os.mkdir(writer_path)
     writer = tensorboardX.SummaryWriter(writer_path)
 
-    generator = model.StyleGAN2Generator(resolution=256)
+    use_gpu = True
+    device = torch.device("cuda" if use_gpu else "cpu")
+
+    generator = model.StyleGAN2Generator(resolution=256).to(device)
     checkpoint = torch.load('./checkpoint/stylegan2_horse256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])

@@ -69,7 +69,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
 
     batch_size = 3
     const_r = torch.randn(batch_size)
-    const_1 = Gs.early_layer(const_r) #[n,512,4,4]
+    const1 = Gs.early_layer(const_r) #[n,512,4,4]
     it_d = 0
 
     vgg16 = torchvision.models.vgg16(pretrained=True).cuda()
@@ -91,7 +91,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
             w1 = result_all['wp']
         const2,w2 = E(imgs1.cuda())
 
-        imgs2=Gs.forward(w2,6)
+        imgs2=Gs(w2)['image']
         
         E_optimizer.zero_grad()
 

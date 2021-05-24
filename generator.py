@@ -51,10 +51,15 @@ Gt = generator.truncation
 #z[0,511]=100
 with torch.no_grad():
     #images = generator(z, **synthesis_kwargs)['image']
-    wp = generator(z, **synthesis_kwargs)['wp']
-    wp[0,10,180]=80
-    images = Gs(wp)['image']
-torchvision.utils.save_image(images*0.5+0.5,'./w_test_ffhq1024_trunc%d_wp[0,10,180]=80=80.png'%trunc_,nrow=1)
+    result_dict = generator(z, **synthesis_kwargs)
+    wp = result_dict['wp']
+    #wp[0,10,180]=80
+    img1 = result_dict['image']
+    result_dict2 = Gs(wp)
+    print(result_dict2.keys())
+    img2 = result_dict2['image']
+torchvision.utils.save_image(img1*0.5+0.5,'./img1.png',nrow=1)
+torchvision.utils.save_image(img2*0.5+0.5,'./img2.png',nrow=1)
 
 
 
