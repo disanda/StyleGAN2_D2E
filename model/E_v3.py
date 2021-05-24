@@ -13,7 +13,7 @@ from torch.nn.parameter import Parameter
 import sys
 sys.path.append('../')
 from torch.nn import functional as F
-import module.lreq as ln
+import model.utils.lreq as ln
 
 # G 改 E, 实际上需要用G Block改出E block, 完成逆序对称，在同样位置还原style潜码
 # 比第0版多了残差, 每一层的两个(conv/line)输出的w1和w2合并为1个w
