@@ -211,7 +211,7 @@ if __name__ == "__main__":
     writer = tensorboardX.SummaryWriter(writer_path)
 
     generator = model.StyleGAN2Generator(resolution=256)
-    checkpoint = torch.load('/Users/apple/Desktop/genforce/checkpoint/stylegan2_ffhq1024.pth') #map_location='cpu'
+    checkpoint = torch.load('./checkpoint/stylegan2_horse256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
     else:
