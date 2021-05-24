@@ -1,9 +1,12 @@
 #training StyleGANv2
 
 import torch
-import model.E_v2 as BE
+import model.E_v3 as BE
 import model.stylegan2_generator as model
 from model.utils.custom_adam import LREQAdam
+import os
+import lpips
+import tensorboardX
 
 def set_seed(seed): #随机数设置
     np.random.seed(seed)
