@@ -57,7 +57,7 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
     loss_info = [[loss_imgs_mse_1.item(),loss_imgs_mse_2.item(),loss_imgs_mse_3.item()], loss_imgs_kl.item(), loss_imgs_cosine.item(), loss_imgs_ssim.item(), loss_imgs_lpips.item()]
     return loss_imgs, loss_info
 
-def train(generator = model.StyleGAN2Generator(resolution=1024), tensor_writer = None, **synthesis_kwargs = dict(trunc_psi=0.7,trunc_layers=8,randomize_noise=False)):
+def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     Gs = generator.synthesis
     Gm = generator.mapping
     E = BE.BE(startf=64, maxf=512, layer_count=7, latent_size=512, channels=3)
@@ -70,7 +70,7 @@ def train(generator = model.StyleGAN2Generator(resolution=1024), tensor_writer =
     #用这个adam不会报错:RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
 
-    batch_size = 4
+    batch_size = 3
     const_r = torch.randn(batch_size)
     const_1 = Gs.early_layer(const_r) #[n,512,4,4]
     it_d = 0
@@ -289,4 +289,4 @@ if __name__ == "__main__":
 
     synthesis_kwargs = dict(trunc_psi=0.7,trunc_layers=8,randomize_noise=False)
 
-    train(generator=generator, tensor_writer=writer, **synthesis_kwargs=synthesis_kwargs)
+    train(generator=generator, tensor_writer=writer, synthesis_kwargs=synthesis_kwargs)
