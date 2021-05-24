@@ -8,6 +8,7 @@ import lpips
 import metric.pytorch_ssim as pytorch_ssim
 from metric.grad_cam import GradCAM, GradCamPlusPlus, GuidedBackPropagation, mask2cam
 import tensorboardX
+import numpy as np
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.enabled = True
 
