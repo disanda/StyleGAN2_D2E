@@ -10,8 +10,8 @@ https://github.com/tkarras/progressive_growing_of_gans
 #修改了DCGAN最后一个block，将两个fc合并为1个，用于输出和G输入尺寸对应的潜变量
 #[512*8*8,4],[4,1] ->[512*8*8,output_size] 输出维度 [n,output_size]
 #1.只改变全链接维度会让模型在1轮epoth结束前崩溃
-#2.关闭minibatch_std_group_size
-
+#2.关闭minibatch_std_group_size，更早崩溃
+#3.将最后一个block由fc改为conv. 其中 kernel 3->4, padding 1->0. 以保证输出4*4->1*1
 import numpy as np
 
 import torch
@@ -135,10 +135,21 @@ class PGGANDiscriminator(nn.Module):
                         minibatch_std_group_size=self.minibatch_std_group_size))
                 tf_layer0_name = 'Conv'
                 self.add_module(
+                    # f'layer{2 * block_idx + 1}',
+                    # DenseBlock(in_channels=self.get_nf(res) * res * res,
+                    #            out_channels=self.output_size,
+                    #            use_wscale=self.use_wscale))
+                    ## 以下改为普通Conv
                     f'layer{2 * block_idx + 1}',
-                    DenseBlock(in_channels=self.get_nf(res) * res * res,
-                               out_channels=self.output_size,
-                               use_wscale=self.use_wscale))
+                    ConvBlock(
+                        in_channels=self.get_nf(res),
+                        out_channels=self.output_size,
+                        use_wscale=self.use_wscale,
+                        downsample=False,
+                        fused_scale=False,
+                        kernel_size=4,
+                        padding=0,
+                        minibatch_std_group_size=self.minibatch_std_group_size))
                 tf_layer1_name = 'Dense0'
 
             self.pth_to_tf_var_mapping[f'layer{2 * block_idx}.weight'] = (
@@ -207,6 +218,7 @@ class PGGANDiscriminator(nn.Module):
             if lod > current_lod:
                 image = self.downsample(image)
         #x = self.__getattr__(f'layer{2 * block_idx + 2}')(x)
+        #x = F.avg_pool2d(x,2,2)
         return x
 
 
