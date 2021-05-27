@@ -80,8 +80,8 @@ def train(generator = None, tensor_writer = None):
             result_all = generator(w1)
             imgs1 = result_all['image']
         #w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
-        #w2 = w2.squeeze().squeeze()
         w2 =  E(imgs1)
+        w2 = w2.squeeze().squeeze()
         imgs2=generator(w2)['image']
 
         E_optimizer.zero_grad()
