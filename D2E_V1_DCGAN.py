@@ -3,9 +3,7 @@
 import os
 import torch
 import torchvision
-import model.E_v3 as BE
-import model.stylegan2_generator as model_v2
-from model.utils.custom_adam import LREQAdam
+import model.DCGAN_Encoder as D2E
 import metric.pytorch_ssim as pytorch_ssim
 import lpips
 import numpy as np
@@ -60,7 +58,7 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
 def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     Gs = generator.synthesis
     Gm = generator.mapping
-    E = BE.BE(startf=64, maxf=512, layer_count=7, latent_size=512, channels=3)
+    E = D2E.encoder_v1(height=256, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     Gs.cuda()
     E.cuda()
@@ -76,24 +74,15 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
-        z = torch.randn(batch_size, 512).cuda() #[32, 512]
+        z = torch.randn(batch_size, 512,1,1).cuda() #[32, 512]
         with torch.no_grad(): #这里需要生成图片和变量
             result_all = generator(z, **synthesis_kwargs)
             imgs1 = result_all['image']
-            w1 = result_all['wp']
-        const2,w2 = E(imgs1.cuda())
-
+            w1 = result_all['w']
+        w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
         imgs2=Gs(w2)['image']
 
         E_optimizer.zero_grad()
-
-#Latent_space
-
-## c
-        loss_c, loss_c_info = space_loss(const1,const2,image_space = False)
-        E_optimizer.zero_grad()
-        loss_c.backward(retain_graph=True)
-        E_optimizer.step()
 
 ## w
         loss_w, loss_w_info = space_loss(w1,w2,image_space = False)
@@ -170,13 +159,6 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         writer.add_scalar('loss_w_ssim', loss_w_info[3], global_step=it_d)
         writer.add_scalar('loss_w_lpips', loss_w_info[4], global_step=it_d)
 
-        writer.add_scalar('loss_c_mse', loss_c_info[0][0], global_step=it_d)
-        writer.add_scalar('loss_c_mse_mean', loss_c_info[0][1], global_step=it_d)
-        writer.add_scalar('loss_c_mse_std', loss_c_info[0][2], global_step=it_d)
-        writer.add_scalar('loss_c_kl', loss_c_info[1], global_step=it_d)
-        writer.add_scalar('loss_c_cosine', loss_c_info[2], global_step=it_d)
-        writer.add_scalar('loss_c_ssim', loss_c_info[3], global_step=it_d)
-        writer.add_scalar('loss_c_lpips', loss_c_info[4], global_step=it_d)
 
         writer.add_scalars('Image_Space_MSE', {'loss_small_mse':loss_small_info[0][0],'loss_medium_mse':loss_medium_info[0][0],'loss_img_mse':loss_imgs_info[0][0]}, global_step=it_d)
         writer.add_scalars('Image_Space_KL', {'loss_small_kl':loss_small_info[1],'loss_medium_kl':loss_medium_info[1],'loss_imgs_kl':loss_imgs_info[1]}, global_step=it_d)
@@ -184,7 +166,6 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         writer.add_scalars('Image_Space_SSIM', {'loss_small_ssim':loss_small_info[3],'loss_medium_ssim':loss_medium_info[3],'loss_img_ssim':loss_imgs_info[3]}, global_step=it_d)
         writer.add_scalars('Image_Space_Lpips', {'loss_small_lpips':loss_small_info[4],'loss_medium_lpips':loss_medium_info[4],'loss_img_lpips':loss_imgs_info[4]}, global_step=it_d)
         writer.add_scalars('Latent Space W', {'loss_w_mse':loss_w_info[0][0],'loss_w_mse_mean':loss_w_info[0][1],'loss_w_mse_std':loss_w_info[0][2],'loss_w_kl':loss_w_info[1],'loss_w_cosine':loss_w_info[2]}, global_step=it_d)
-        writer.add_scalars('Latent Space C', {'loss_c_mse':loss_c_info[0][0],'loss_c_mse_mean':loss_c_info[0][1],'loss_c_mse_std':loss_c_info[0][2],'loss_c_kl':loss_c_info[1],'loss_c_cosine':loss_c_info[2]}, global_step=it_d)
 
 
         if epoch % 100 == 0:
@@ -200,7 +181,6 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
                 print('loss_imgs_info: %s'%loss_imgs_info,file=f)
                 print('---------LatentSpace--------',file=f)
                 print('loss_w_info: %s'%loss_w_info,file=f)
-                print('loss_c_info: %s'%loss_c_info,file=f)
             if epoch % 5000 == 0:
                 torch.save(E.state_dict(), resultPath1_2+'/E_model_ep%d.pth'%epoch)
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
@@ -223,7 +203,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if use_gpu else "cpu")
 
     generator = model_v2.StyleGAN2Generator(resolution=256).to(device)
-    checkpoint = torch.load('./checkpoint/stylegan2_horse256.pth') #map_location='cpu'
+    checkpoint = torch.load('./checkpoint/pggan_cat256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
     else:

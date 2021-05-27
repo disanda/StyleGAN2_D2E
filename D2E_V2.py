@@ -1,16 +1,20 @@
 #training StyleGANv2, Grad-Cam
 import os
 import torch
+import torch.nn as nn
 import torchvision
-import module.BE_v3 as BE
-from module.utils.custom_adam import LREQAdam
+import model.E_v3 as BE
+from model.utils.custom_adam import LREQAdam
+import model.stylegan2_generator as model_v2
 import lpips
 import metric.pytorch_ssim as pytorch_ssim
 from metric.grad_cam import GradCAM, GradCamPlusPlus, GuidedBackPropagation, mask2cam
 import tensorboardX
 import numpy as np
+#torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
-torch.backends.cudnn.enabled = True
+torch.backends.cudnn.deterministic = False # faster
+
 
 def set_seed(seed): #随机数设置
     np.random.seed(seed)
@@ -276,7 +280,10 @@ if __name__ == "__main__":
     resultPath_grad_cam = resultPath+"/grad_cam"
     if not os.path.exists(resultPath_grad_cam): os.mkdir(resultPath_grad_cam)
 
-    generator = model.StyleGAN2Generator(resolution=256)
+    use_gpu = True
+    device = torch.device("cuda" if use_gpu else "cpu")
+
+    generator = model_v2.StyleGAN2Generator(resolution=256).to(device)
     checkpoint = torch.load('./checkpoint/stylegan2_horse256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
