@@ -4,7 +4,7 @@ import os
 import torch
 import torchvision
 import model.DCGAN_Encoder as D2E
-import model.stylegan2_generator as model_v2
+import model.pggan_generator as model_pggan
 import metric.pytorch_ssim as pytorch_ssim
 import lpips
 import numpy as np
@@ -56,9 +56,8 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
     return loss_imgs, loss_info
 
 
-def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
-    Gs = generator.synthesis
-    Gm = generator.mapping
+def train(generator = None, tensor_writer = None):
+    generator = generator
     E = D2E.encoder_v1(height=256, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     Gs.cuda()
@@ -77,9 +76,9 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         set_seed(epoch%30000)
         z = torch.randn(batch_size, 512,1,1).cuda() #[32, 512]
         with torch.no_grad(): #这里需要生成图片和变量
-            result_all = generator(z, **synthesis_kwargs)
+            result_all = generator(z)
             imgs1 = result_all['image']
-            w1 = result_all['w']
+            w1 = result_all['z']
         w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
         imgs2=Gs(w2)['image']
 
@@ -203,13 +202,11 @@ if __name__ == "__main__":
     use_gpu = True
     device = torch.device("cuda" if use_gpu else "cpu")
 
-    generator = model_v2.StyleGAN2Generator(resolution=256).to(device)
-    checkpoint = torch.load('./checkpoint/pggan_cat256.pth') #map_location='cpu'
+    generator = model_pggan.PGGANGenerator(resolution=256).to(device)
+    checkpoint = torch.load('./checkpoint/pggan_car256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
     else:
         generator.load_state_dict(checkpoint['generator'])
 
-    synthesis_kwargs = dict(trunc_psi=0.7,trunc_layers=8,randomize_noise=False)
-
-    train(generator=generator, tensor_writer=writer, synthesis_kwargs=synthesis_kwargs )
+    train(generator=generator, tensor_writer=writer)
