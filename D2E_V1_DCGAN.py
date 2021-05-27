@@ -3,7 +3,8 @@
 import os
 import torch
 import torchvision
-import model.DCGAN_Encoder as D2E
+#import model.DCGAN_Encoder as D2E
+import model.pggan_d2e as D2E
 import model.pggan_generator as model_pggan
 import metric.pytorch_ssim as pytorch_ssim
 from model.utils.custom_adam import LREQAdam
@@ -59,7 +60,8 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
 
 def train(generator = None, tensor_writer = None):
     generator = generator
-    E = D2E.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
+    #E = D2E.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
+    E = D2E.PGGANDiscriminator(512) # out: [n,512]
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     generator.cuda()
     E.cuda()
@@ -78,7 +80,7 @@ def train(generator = None, tensor_writer = None):
             result_all = generator(w1)
             imgs1 = result_all['image']
         w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
-        w2 = w2.squeeze().squeeze()
+        #w2 = w2.squeeze().squeeze()
         imgs2=generator(w2)['image']
 
         E_optimizer.zero_grad()
