@@ -65,7 +65,7 @@ def train(generator = None, tensor_writer = None):
     E.cuda()
     writer = tensor_writer
 
-    E_optimizer = LREQAdam([{'params': E.parameters()},], lr=0.0015, betas=(0.0, 0.99), weight_decay=0) 
+    E_optimizer = LREQAdam([{'params': E.parameters()},], lr=0.002, betas=(0.0, 0.99), weight_decay=0, eps=1e-8) 
     #用这个adam不会报错:RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
 
@@ -123,7 +123,6 @@ def train(generator = None, tensor_writer = None):
         print('loss_imgs_info: %s'%loss_imgs_info)
         print('---------LatentSpace--------')
         print('loss_w_info: %s'%loss_w_info)
-        print('loss_c_info: %s'%loss_c_info)
 
         it_d += 1
         writer.add_scalar('loss_small_mse', loss_small_info[0][0], global_step=it_d)
