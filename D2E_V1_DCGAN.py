@@ -4,6 +4,7 @@ import os
 import torch
 import torchvision
 import model.DCGAN_Encoder as D2E
+import model.stylegan2_generator as model_v2
 import metric.pytorch_ssim as pytorch_ssim
 import lpips
 import numpy as np
@@ -186,7 +187,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/StyleGANv2_horse256_attentionV1"
+    resultPath = "./result/PGGAN_car256"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
