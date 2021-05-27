@@ -9,6 +9,8 @@ https://github.com/tkarras/progressive_growing_of_gans
 
 #修改了DCGAN最后一个block，将两个fc合并为1个，用于输出和G输入尺寸对应的潜变量
 #[512*8*8,4],[4,1] ->[512*8*8,output_size] 输出维度 [n,output_size]
+#1.只改变全链接维度会让模型在1轮epoth结束前崩溃
+#2.关闭minibatch_std_group_size
 
 import numpy as np
 
