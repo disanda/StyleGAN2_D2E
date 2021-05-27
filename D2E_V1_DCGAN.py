@@ -74,11 +74,10 @@ def train(generator = None, tensor_writer = None):
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
-        z = torch.randn(batch_size, 512,1,1).cuda() #[32, 512]
+        w1 = torch.randn(batch_size, 512,1,1).cuda() #[32, 512]
         with torch.no_grad(): #这里需要生成图片和变量
-            result_all = generator(z)
+            result_all = generator(w1)
             imgs1 = result_all['image']
-            w1 = result_all['z']
         w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
         imgs2=Gs(w2)['image']
 
