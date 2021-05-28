@@ -4,8 +4,8 @@ import os
 import torch
 import torchvision
 #import model.DCGAN_Encoder as D2E
-import model.pggan_d2e as D2E
-import model.pggan_generator as model_pggan
+import model.pggan.pggan_d2e as D2E
+import model.pggan.pggan_generator as model_pggan
 import metric.pytorch_ssim as pytorch_ssim
 from model.utils.custom_adam import LREQAdam
 import lpips
@@ -187,7 +187,7 @@ def train(generator = None, tensor_writer = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/PGGAN_car256_MnibatchSTD=4_FC——lr0.0002"
+    resultPath = "./result/PGGAN_bridge256_MnibatchSTD=BatchSize_FC——lr0.0002"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if use_gpu else "cpu")
 
     generator = model_pggan.PGGANGenerator(resolution=256).to(device)
-    checkpoint = torch.load('./checkpoint/pggan_car256.pth') #map_location='cpu'
+    checkpoint = torch.load('./checkpoint/pggan_bridge256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
     else:

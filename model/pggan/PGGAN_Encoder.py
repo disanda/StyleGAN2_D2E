@@ -1,3 +1,5 @@
+#这个版本是最早在AAAI上试用的版本，其来自MSG-GAN的修改
+
 import numpy as np
 import torch
 import torch.nn as nn

@@ -99,7 +99,7 @@ class BEBlock(nn.Module):
 
 
 class BE(nn.Module):
-    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3):
+    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3, dcgan=False):
         super().__init__()
         self.maxf = maxf
         self.startf = startf
@@ -131,6 +131,8 @@ class BE(nn.Module):
             self.decode_block.append(block)
         #self.FromRGB = from_RGB
 
+        if dcgan:
+            self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
 
     #将w逆序，以保证和G的w顺序, block_num控制progressive
     def forward(self, x, block_num=9):
@@ -144,6 +146,8 @@ class BE(nn.Module):
                 w = w_ # [b,n,512]
             else:
                 w = torch.cat((w_,w),dim=1)
+        if dcgan:
+            x = self.new_final(x)
         return x, w
 
 #test

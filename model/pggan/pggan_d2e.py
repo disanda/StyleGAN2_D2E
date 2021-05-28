@@ -12,8 +12,10 @@ https://github.com/tkarras/progressive_growing_of_gans
 #1.只改变全链接维度会让模型在1轮epoth结束前崩溃
 #2.关闭minibatch_std_group_size，更早崩溃
 #3.将最后一个block由fc改为conv. 其中 kernel 3->4, padding 1->0. 以保证输出4*4->1*1
+#4.发现问题：只需要将学习率降低为0.0002(原为0.0015),以上版本皆可以work。本次设置关闭minibatch_std_group_size=batch_size
+import sys
+sys.path.append('../')
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
