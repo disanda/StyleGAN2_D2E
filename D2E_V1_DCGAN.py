@@ -61,13 +61,13 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
 def train(generator = None, tensor_writer = None):
     generator = generator
     #E = D2E.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
-    E = D2E.PGGANDiscriminator(256,minibatch_std_group_size=0) # out: [n,512]
+    E = D2E.PGGANDiscriminator(256,minibatch_std_group_size=4) # out: [n,512]
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     generator.cuda()
     E.cuda()
     writer = tensor_writer
 
-    E_optimizer = LREQAdam([{'params': E.parameters()},], lr=0.002, betas=(0.0, 0.99), weight_decay=0, eps=1e-8) 
+    E_optimizer = LREQAdam([{'params': E.parameters()},], lr=0.0002, betas=(0.0, 0.99), weight_decay=0, eps=1e-8) 
     #用这个adam不会报错:RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
 
@@ -81,7 +81,7 @@ def train(generator = None, tensor_writer = None):
             imgs1 = result_all['image']
         #w2 = E(imgs1.cuda(),height=6,alpha=1) # height:8 -> 1024, 7->512, 6->256
         w2 =  E(imgs1)
-        w2 = w2.squeeze().squeeze()
+        #w2 = w2.squeeze().squeeze()
         imgs2=generator(w2)['image']
 
         E_optimizer.zero_grad()
@@ -187,7 +187,7 @@ def train(generator = None, tensor_writer = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/PGGAN_car256_noMnibatchSTD_FC2CONV"
+    resultPath = "./result/PGGAN_car256_MnibatchSTD=4_FC——lr0.0002"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
