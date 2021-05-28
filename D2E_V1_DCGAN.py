@@ -60,8 +60,10 @@ def space_loss(imgs1,imgs2,image_space=True,lpips_model=None):
 
 def train(generator = None, tensor_writer = None):
     generator = generator
+    batch_size = 10
+
     #E = D2E.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
-    E = D2E.PGGANDiscriminator(256,minibatch_std_group_size=10) # out: [n,512]
+    E = D2E.PGGANDiscriminator(256, minibatch_std_group_size = batch_size) # out: [n,512]
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     generator.cuda()
     E.cuda()
