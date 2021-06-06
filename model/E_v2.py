@@ -85,7 +85,7 @@ class BEBlock(nn.Module):
 
 
 class BE(nn.Module):
-    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3, dcgan=False):
+    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3, pggan=False):
         super().__init__()
         self.maxf = maxf
         self.startf = startf
@@ -114,7 +114,7 @@ class BE(nn.Module):
             resolution /=2
             self.decode_block.append(block)
 
-        if dcgan:
+        if pggan:
             self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
 
         #self.FromRGB = from_RGB
@@ -132,6 +132,6 @@ class BE(nn.Module):
             else:
                 w = torch.cat((w_,w),dim=1)
             #print(w.shape)
-        if dcgan:
+        if pggan:
             x = self.new_final(x)
         return x, w

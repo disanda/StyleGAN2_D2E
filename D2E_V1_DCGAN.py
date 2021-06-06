@@ -3,8 +3,8 @@
 import os
 import torch
 import torchvision
-#import model.DCGAN_Encoder as D2E
-import model.pggan.pggan_d2e as D2E
+#import model.pggan.pggan_d2e as D2E
+import model.E_v2 as BE
 import model.pggan.pggan_generator as model_pggan
 import metric.pytorch_ssim as pytorch_ssim
 from model.utils.custom_adam import LREQAdam
@@ -62,8 +62,9 @@ def train(generator = None, tensor_writer = None):
     generator = generator
     batch_size = 10
 
-    #E = D2E.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
-    E = D2E.PGGANDiscriminator(256, minibatch_std_group_size = batch_size) # out: [n,512]
+    #E = BE.encoder_v1(height=7, feature_size=512) #in: [n,c,h,w] out: [n,c,1,1]. height=9 -> 1024, 8->512, 7->256
+    #E = D2E.PGGANDiscriminator(256, minibatch_std_group_size = batch_size) # out: [n,512]
+    E = BE.BE(startf=64, maxf=512, layer_count=7, latent_size=512, channels=3, pggan=True)
     #E.load_state_dict(torch.load('/_yucheng/myStyle/myStyle-v1/EAE-car-cat/result/EB_cat_cosine_v2/E_model_ep80000.pth'))
     generator.cuda()
     E.cuda()
@@ -188,7 +189,7 @@ def train(generator = None, tensor_writer = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/PGGAN_bridge256_MnibatchSTD=BatchSize_FC——lr0.0002"
+    resultPath = "./result/PGGAN_Ev2_horse256_MnibatchSTD=BatchSize_FC——lr0.0002"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
@@ -205,7 +206,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if use_gpu else "cpu")
 
     generator = model_pggan.PGGANGenerator(resolution=256).to(device)
-    checkpoint = torch.load('./checkpoint/pggan_bridge256.pth') #map_location='cpu'
+    checkpoint = torch.load('./checkpoint/pggan_horse256.pth') #map_location='cpu'
     if 'generator_smooth' in checkpoint: #默认是这个
         generator.load_state_dict(checkpoint['generator_smooth'])
     else:
