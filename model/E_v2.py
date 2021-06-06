@@ -114,7 +114,8 @@ class BE(nn.Module):
             resolution /=2
             self.decode_block.append(block)
 
-        if pggan:
+        self.pggan = pggan
+        if self.pggan:
             self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
 
         #self.FromRGB = from_RGB

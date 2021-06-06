@@ -131,6 +131,7 @@ class BE(nn.Module):
             self.decode_block.append(block)
         #self.FromRGB = from_RGB
 
+        self.pggan = pggan
         if pggan:
             self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
 
