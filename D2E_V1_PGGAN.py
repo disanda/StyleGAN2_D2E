@@ -190,7 +190,7 @@ def train(generator = None, tensor_writer = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/PGGAN_Ev2_horse256_MnibatchSTD=BatchSize_FC——lr0.0002"
+    resultPath = "./result/PGGAN_Ev2_finalFC_horse256_MnibatchSTD=BatchSize_FC——lr0.0002"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"

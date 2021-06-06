@@ -116,8 +116,8 @@ class BE(nn.Module):
 
         self.pggan = pggan
         if self.pggan:
-            self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
-
+            #self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
+            self.new_final = ln.Linear(512, latent_size, gain=1)
         #self.FromRGB = from_RGB
 
     #将w逆序，以保证和G的w顺序, block_num控制progressive
@@ -134,5 +134,5 @@ class BE(nn.Module):
                 w = torch.cat((w_,w),dim=1)
             #print(w.shape)
         if self.pggan:
-            x = self.new_final(x)
+            x = self.new_final(x.view(x.shape[0],-1))
         return x, w
