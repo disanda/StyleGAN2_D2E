@@ -133,6 +133,6 @@ class BE(nn.Module):
             else:
                 w = torch.cat((w_,w),dim=1)
             #print(w.shape)
-        if pggan:
+        if self.pggan:
             x = self.new_final(x)
         return x, w

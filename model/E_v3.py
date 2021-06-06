@@ -147,7 +147,7 @@ class BE(nn.Module):
                 w = w_ # [b,n,512]
             else:
                 w = torch.cat((w_,w),dim=1)
-        if pggan:
+        if self.pggan:
             x = self.new_final(x)
         return x, w
 
