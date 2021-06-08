@@ -136,5 +136,5 @@ class BE(nn.Module):
                 w = torch.cat((w_,w),dim=1)
         if self.pggan:
             #x = self.new_final(x)
-            x_final = self.new_final(x.view(x.shape[0],-1))
-        return x_final, w
+            x = self.new_final(x.view(x.shape[0],-1))
+        return x, w
