@@ -49,9 +49,10 @@ class BEBlock(nn.Module):
             self.bias_2.zero_()
 
     def forward(self, x):
-        mean1 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
-        std1 = torch.sqrt(torch.mean((x - mean1) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
+        #mean1 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
+        #std1 = torch.sqrt(torch.mean((x - mean1) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
         #style1 = torch.cat((mean1, std1), dim=1) # [b,2c,1,1]
+        std1 = x.std((2,3))
         w1 = self.inver_mod1(std1.squeeze()) # [b,2c]->[b,512]
 
         residual = x
@@ -62,9 +63,10 @@ class BEBlock(nn.Module):
         x = x + self.bias_1
         x = F.leaky_relu(x, 0.2)
 
-        mean2 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
-        std2 = torch.sqrt(torch.mean((x - mean2) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
+        #mean2 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
+        #std2 = torch.sqrt(torch.mean((x - mean2) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
         #style2 = torch.cat((mean2, std2), dim=1) # [b,2c,1,1]
+        std2 = x.std((2,3))
         w2 = self.inver_mod2(std2.squeeze()) # [b,512] , 这里style2.view一直写错成style1.view
 
         x = self.instance_norm_2(x)
