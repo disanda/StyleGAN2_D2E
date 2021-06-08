@@ -3,7 +3,7 @@
 import os
 import torch
 import torchvision
-import model.E_v3 as BE
+import model.E_v2_std as BE
 import model.stylegan2_generator as model_v2
 from model.utils.custom_adam import LREQAdam
 import metric.pytorch_ssim as pytorch_ssim
@@ -206,7 +206,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
 
 if __name__ == "__main__":
-    resultPath = "./result/StyleGANv2_horse256_attentionV1"
+    resultPath = "./result/StyleGANv2_horse256_attentionV1_Ev2_wSTD"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"

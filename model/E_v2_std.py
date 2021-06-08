@@ -12,6 +12,8 @@ from torch.nn import functional as F
 # 比第0版多了残差, 每一层的两个(conv/line)输出的w1和w2合并为1个w
 # 比第1版加了要学习的bias_1和bias_2，网络顺序和第1版有所不同(更对称)
 
+# 这一版的w只有std，没有mean
+
 class BEBlock(nn.Module):
     def __init__(self, inputs, outputs, latent_size, has_last_conv=True, fused_scale=True): #分辨率大于128用fused_scale,即conv完成上采样
         super().__init__()
@@ -20,14 +22,14 @@ class BEBlock(nn.Module):
         self.noise_weight_1.data.zero_()
         self.bias_1 = nn.Parameter(torch.Tensor(1, inputs, 1, 1))
         self.instance_norm_1 = nn.InstanceNorm2d(inputs, affine=False, eps=1e-8)
-        self.inver_mod1 = ln.Linear(2 * inputs, latent_size, gain=1) # [n, 2c] -> [n,512]
+        self.inver_mod1 = ln.Linear(inputs, latent_size, gain=1) # [n, 2c] -> [n,512]
         self.conv_1 = ln.Conv2d(inputs, inputs, 3, 1, 1, bias=False)
 
         self.noise_weight_2 = nn.Parameter(torch.Tensor(1, outputs, 1, 1))
         self.noise_weight_2.data.zero_()
         self.bias_2 = nn.Parameter(torch.Tensor(1, outputs, 1, 1))
         self.instance_norm_2 = nn.InstanceNorm2d(inputs, affine=False, eps=1e-8)
-        self.inver_mod2 = ln.Linear(2 * inputs, latent_size, gain=1)
+        self.inver_mod2 = ln.Linear(inputs, latent_size, gain=1)
         self.blur = Blur(inputs)
         if has_last_conv:
             if fused_scale:
@@ -49,8 +51,8 @@ class BEBlock(nn.Module):
     def forward(self, x):
         mean1 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
         std1 = torch.sqrt(torch.mean((x - mean1) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
-        style1 = torch.cat((mean1, std1), dim=1) # [b,2c,1,1]
-        w1 = self.inver_mod1(style1.view(style1.shape[0],style1.shape[1])) # [b,2c]->[b,512]
+        #style1 = torch.cat((mean1, std1), dim=1) # [b,2c,1,1]
+        w1 = self.inver_mod1(std1) # [b,2c]->[b,512]
 
         residual = x
 
@@ -62,8 +64,8 @@ class BEBlock(nn.Module):
 
         mean2 = torch.mean(x, dim=[2, 3], keepdim=True) # [b, c, 1, 1]
         std2 = torch.sqrt(torch.mean((x - mean2) ** 2, dim=[2, 3], keepdim=True))  # [b, c, 1, 1]
-        style2 = torch.cat((mean2, std2), dim=1) # [b,2c,1,1]
-        w2 = self.inver_mod2(style2.view(style2.shape[0],style2.shape[1])) # [b,512] , 这里style2.view一直写错成style1.view
+        #style2 = torch.cat((mean2, std2), dim=1) # [b,2c,1,1]
+        w2 = self.inver_mod2(std2) # [b,512] , 这里style2.view一直写错成style1.view
 
         x = self.instance_norm_2(x)
         if self.has_last_conv:

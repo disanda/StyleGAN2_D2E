@@ -193,6 +193,7 @@ class PGGANGenerator(nn.Module):
                          self.upsample(image) * (1 - alpha))
             elif lod >= current_lod + 1:
                 image = self.upsample(image)
+            print(x.shape)
         image = self.final_activate(image)
 
         results = {
