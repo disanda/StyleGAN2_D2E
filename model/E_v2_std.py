@@ -126,19 +126,15 @@ class BE(nn.Module):
     def forward(self, x, block_num=9):
         #x = self.FromRGB[9-block_num](x) #不是progressive,去除多余的FromRGB
         x = self.FromRGB(x)
-        print(x.shape)
         w = torch.tensor(0)
         for i in range(9-block_num,self.layer_count):
             x,w1,w2 = self.decode_block[i](x)
-            print(x.shape)
             w_ = torch.cat((w2.view(x.shape[0],1,512),w1.view(x.shape[0],1,512)),dim=1) # [b,2,512]
             if i == (9-block_num):
                 w = w_ # [b,n,512]
             else:
                 w = torch.cat((w_,w),dim=1)
-            #print(w.shape)
         if self.pggan:
             #x = self.new_final(x)
             x_final = self.new_final(x.view(x.shape[0],-1))
-            print(x_final.shape)
-        return x_final, x, w
+        return x_final, w
