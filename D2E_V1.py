@@ -70,7 +70,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     #用这个adam不会报错:RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
 
-    batch_size = 3
+    batch_size = 5
     const_r = torch.randn(batch_size)
     const1 = Gs.early_layer(const_r) #[n,512,4,4]
     it_d = 0
