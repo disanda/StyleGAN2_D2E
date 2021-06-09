@@ -162,9 +162,9 @@ class BE(nn.Module):
             #x = self.new_final(x)
             x = self.new_final(x.view(x.shape[0],-1))
         if self.biggan:
-            x = self.new_final_1(x.view(x.shape[0],-1))
+            z = self.new_final_1(x.view(x.shape[0],-1))
             w = self.new_final_2(x.view(x.shape[0],-1))
-        return x, w
+        return z, w
 
 #test
 # E = BE(startf=64, maxf=512, layer_count=7, latent_size=512, channels=3)
