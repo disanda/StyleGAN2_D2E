@@ -109,7 +109,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     for epoch in range(0,250001):
         set_seed(epoch%30000)
         z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size)
-        label = np.random.randint(batch_size,size=1000) # 生成标签
+        label = np.random.randint(1000,size=batch_size) # 生成标签
         label = one_hot(label)
         z = torch.tensor(z, dtype=torch.float)
         w1 = torch.tensor(label, dtype=torch.float)

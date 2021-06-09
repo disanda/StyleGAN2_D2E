@@ -340,9 +340,10 @@ if __name__ == "__main__":
 
     noise = torch.tensor(noise, dtype=torch.float)
     label = torch.tensor(label, dtype=torch.float)
-    #print(label.shape)
-    with torch.no_grad():
-        outputs = model(noise, label, truncation)
+    print(label.shape)
+    print(noise,shape)
+    # with torch.no_grad():
+    #     outputs = model(noise, label, truncation)
     #print(outputs.shape)
     #print(model)
 
