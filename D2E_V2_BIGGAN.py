@@ -16,6 +16,10 @@ import numpy as np
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.deterministic = False # faster
 
+# 1.难度优化: 输出的label来一组 argmax()再onehot
+# 2.网络中的IN改为CBN
+# 3.网络的Z改为W
+
 def one_hot(x, class_count=1000):
     # 第一构造一个[class_count, class_count]的对角线为1的向量
     # 第二保留label对应的行并返回
@@ -93,7 +97,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     #用这个adam不会报错:RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
 
-    batch_size = 5
+    batch_size = 4
 
     it_d = 0
 
@@ -108,7 +112,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     it_d = 0
     for epoch in range(0,250001):
         set_seed(epoch%30000)
-        z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size)
+        z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size, seed=epoch%30000)
         label = np.random.randint(1000,size=batch_size) # 生成标签
         label = one_hot(label)
         z = torch.tensor(z, dtype=torch.float).cuda()
@@ -118,6 +122,8 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
             imgs1 = G(z, w1, truncation)
 
         z2,w2 = E(imgs1.cuda())
+        w2 = w2.argmax()
+        w2 = one_hot(w2)
         imgs2=G(z2, w2, truncation)
         
         E_optimizer.zero_grad()
@@ -288,7 +294,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('./result'): os.mkdir('./result')
 
-    resultPath = "./result/BigGAN256_attentionV2"
+    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
