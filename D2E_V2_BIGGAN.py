@@ -114,7 +114,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         z = torch.tensor(z, dtype=torch.float)
         w1 = torch.tensor(label, dtype=torch.float)
         with torch.no_grad(): #这里需要生成图片和变量
-            imgs1 = G(z.cuda(), label.cuda(), synthesis_kwargs.cuda())
+            imgs1 = G(z.cuda(), w1.cuda(), synthesis_kwargs.cuda())
 
         const2,w2 = E(imgs1.cuda())
         imgs2=G(const2,w2)['image']
