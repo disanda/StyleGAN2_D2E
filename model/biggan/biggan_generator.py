@@ -244,14 +244,14 @@ class Generator(nn.Module):
             else:
                 z = layer(z) # [5, 2048, 8, 8] 
 
-        z = self.bn(z, truncation)
-        print(z.shape)
+        z = self.bn(z, truncation) #[5, 128, 256, 256]
+
         z = self.relu(z)
-        print(z.shape)
-        z = self.conv_to_rgb(z)
-        print(z.shape)
-        z = z[:, :3, ...]
-        print(z.shape)
+
+        z = self.conv_to_rgb(z) # [5, 128, 256, 256]
+
+        z = z[:, :3, ...] # [5, 3, 256, 256]
+
         z_final = self.tanh(z)
         return z_final # [5, 3, 256, 256]
 
