@@ -111,7 +111,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size)
         label = np.random.randint(batch_size,size=1000) # 生成标签
         label = one_hot(label)
-        z = torch.tensor(noise, dtype=torch.float)
+        z = torch.tensor(z, dtype=torch.float)
         w1 = torch.tensor(label, dtype=torch.float)
         with torch.no_grad(): #这里需要生成图片和变量
             imgs1 = G(z, label, synthesis_kwargs)
