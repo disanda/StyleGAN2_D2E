@@ -306,8 +306,8 @@ if __name__ == "__main__":
     if not os.path.exists(writer_path): os.mkdir(writer_path)
     writer = tensorboardX.SummaryWriter(writer_path)
 
-    cache_path = './checkpoints/biggan/G-256.pt'
-    resolved_config_file = './checkpoints/biggan/biggan-deep-256-config.json'
+    cache_path = './checkpoint/biggan/256/G-256.pt'
+    resolved_config_file = './checkpoint/biggan/256/biggan-deep-256-config.json'
     config = BigGANConfig.from_json_file(resolved_config_file)
     model = BigGAN(config)
     model.load_state_dict(torch.load(cache_path))

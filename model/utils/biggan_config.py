@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import copy
 import json
+import os
 
 class BigGANConfig(object):
     """ Configuration class to store the configuration of a `BigGAN`. 
