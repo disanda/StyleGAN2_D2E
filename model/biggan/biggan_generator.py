@@ -21,8 +21,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from config import BigGANConfig
-from file_utils import cached_path
+# from config import BigGANConfig
+# from file_utils import cached_path
 
 logger = logging.getLogger(__name__)
 
@@ -258,35 +258,35 @@ class Generator(nn.Module):
 class BigGAN(nn.Module):
     """BigGAN Generator."""
 
-    @classmethod
-    def from_pretrained(cls, pretrained_model_name_or_path, cache_dir=None, *inputs, **kwargs):
-        if pretrained_model_name_or_path in PRETRAINED_MODEL_ARCHIVE_MAP:
-            model_file = PRETRAINED_MODEL_ARCHIVE_MAP[pretrained_model_name_or_path]
-            config_file = PRETRAINED_CONFIG_ARCHIVE_MAP[pretrained_model_name_or_path]
-        else:
-            model_file = os.path.join(pretrained_model_name_or_path, WEIGHTS_NAME)
-            config_file = os.path.join(pretrained_model_name_or_path, CONFIG_NAME)
+    # @classmethod
+    # def from_pretrained(cls, pretrained_model_name_or_path, cache_dir=None, *inputs, **kwargs):
+    #     if pretrained_model_name_or_path in PRETRAINED_MODEL_ARCHIVE_MAP:
+    #         model_file = PRETRAINED_MODEL_ARCHIVE_MAP[pretrained_model_name_or_path]
+    #         config_file = PRETRAINED_CONFIG_ARCHIVE_MAP[pretrained_model_name_or_path]
+    #     else:
+    #         model_file = os.path.join(pretrained_model_name_or_path, WEIGHTS_NAME)
+    #         config_file = os.path.join(pretrained_model_name_or_path, CONFIG_NAME)
 
-        try:
-            resolved_model_file = cached_path(model_file, cache_dir=cache_dir)
-            resolved_config_file = cached_path(config_file, cache_dir=cache_dir)
-        except EnvironmentError:
-            logger.error("Wrong model name, should be a valid path to a folder containing "
-                         "a {} file and a {} file or a model name in {}".format(
-                         WEIGHTS_NAME, CONFIG_NAME, PRETRAINED_MODEL_ARCHIVE_MAP.keys()))
-            raise
+    #     try:
+    #         resolved_model_file = cached_path(model_file, cache_dir=cache_dir)
+    #         resolved_config_file = cached_path(config_file, cache_dir=cache_dir)
+    #     except EnvironmentError:
+    #         logger.error("Wrong model name, should be a valid path to a folder containing "
+    #                      "a {} file and a {} file or a model name in {}".format(
+    #                      WEIGHTS_NAME, CONFIG_NAME, PRETRAINED_MODEL_ARCHIVE_MAP.keys()))
+    #         raise
 
-        logger.info("loading model {} from cache at {}".format(pretrained_model_name_or_path, resolved_model_file))
+    #     logger.info("loading model {} from cache at {}".format(pretrained_model_name_or_path, resolved_model_file))
 
-        # Load config
-        config = BigGANConfig.from_json_file(resolved_config_file)
-        logger.info("Model config {}".format(config))
+    #     # Load config
+    #     config = BigGANConfig.from_json_file(resolved_config_file)
+    #     logger.info("Model config {}".format(config))
 
-        # Instantiate model.
-        model = cls(config, *inputs, **kwargs)
-        state_dict = torch.load(resolved_model_file, map_location='cpu' if not torch.cuda.is_available() else None)
-        model.load_state_dict(state_dict, strict=False)
-        return model
+    #     # Instantiate model.
+    #     model = cls(config, *inputs, **kwargs)
+    #     state_dict = torch.load(resolved_model_file, map_location='cpu' if not torch.cuda.is_available() else None)
+    #     model.load_state_dict(state_dict, strict=False)
+    #     return model
 
     def __init__(self, config):
         super(BigGAN, self).__init__()
