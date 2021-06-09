@@ -118,7 +118,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
             imgs1 = G(z.cuda(), w1.cuda(), synthesis_kwargs.cuda())
 
         const2,w2 = E(imgs1.cuda())
-        imgs2=G(const2,w2)['image']
+        imgs2=G(const2,w2,synthesis_kwargs.cuda())
         
         E_optimizer.zero_grad()
 
