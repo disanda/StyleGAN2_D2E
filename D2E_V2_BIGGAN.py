@@ -113,12 +113,12 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         label = one_hot(label)
         z = torch.tensor(z, dtype=torch.float).cuda()
         w1 = torch.tensor(label, dtype=torch.float).cuda()
-        synthesis_kwargs = torch.tensor(synthesis_kwargs, dtype=torch.float).cuda()
+        truncation = torch.tensor(synthesis_kwargs, dtype=torch.float).cuda()
         with torch.no_grad(): #这里需要生成图片和变量
-            imgs1 = G(z, w1, synthesis_kwargs)
+            imgs1 = G(z, w1, truncation)
 
         z2,w2 = E(imgs1.cuda())
-        imgs2=G(z2, w2, synthesis_kwargs)
+        imgs2=G(z2, w2, truncation)
         
         E_optimizer.zero_grad()
 
