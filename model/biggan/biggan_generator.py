@@ -229,23 +229,20 @@ class Generator(nn.Module):
         self.tanh = nn.Tanh()
 
     def forward(self, cond_vector, truncation):
-        z = self.gen_z(cond_vector)
-        print(z.shape)
+        z = self.gen_z(cond_vector) # [n, 32768]
         # We use this conversion step to be able to use TF weights:
         # TF convention on shape is [batch, height, width, channels]
         # PT convention on shape is [batch, channels, height, width]
-        z = z.view(-1, 4, 4, 16 * self.config.channel_width)
-        print(z.shape)
-        z = z.permute(0, 3, 1, 2).contiguous()
-        print(z.shape)
+        z = z.view(-1, 4, 4, 16 * self.config.channel_width) # [n, 4, 4, 2048]
+
+        z = z.permute(0, 3, 1, 2).contiguous() # [5, 2048, 4, 4]
+
 
         for i, layer in enumerate(self.layers): #其中有一层是 self-attention
             if isinstance(layer, GenBlock):
-                z = layer(z, cond_vector, truncation)
-                print(z.shape)
+                z = layer(z, cond_vector, truncation) # [5, 2048, 4, 4]
             else:
-                z = layer(z)
-                print(z.shape)
+                z = layer(z) # [5, 2048, 8, 8] 
 
         z = self.bn(z, truncation)
         print(z.shape)
@@ -256,7 +253,7 @@ class Generator(nn.Module):
         z = z[:, :3, ...]
         print(z.shape)
         z_final = self.tanh(z)
-        return z_final
+        return z_final # [5, 3, 256, 256]
 
 class BigGAN(nn.Module):
     """BigGAN Generator."""

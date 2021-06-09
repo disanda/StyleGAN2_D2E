@@ -143,8 +143,8 @@ class BE(nn.Module):
 
         self.biggan = biggan
         if biggan:
-            self.new_final_1 = ln.Linear(256, 128, gain=1)
-            self.new_final_2 = ln.Linear(256, 1000, gain=1)
+            self.new_final_1 = ln.Linear(8192, 128, gain=1) # 8192 = 512 * 16
+            self.new_final_2 = ln.Linear(8192, 1000, gain=1) # 
 
     #将w逆序，以保证和G的w顺序, block_num控制progressive
     def forward(self, x, block_num=9):
