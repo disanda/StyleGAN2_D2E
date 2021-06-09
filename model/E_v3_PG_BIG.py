@@ -7,6 +7,10 @@
 # 改变了了residual,和残差网络一致，另外旁路多了conv1处理通道和In学习参数
 # 经测试，不带Eq(Equalize Learning Rate)的参数层学习效果不好
 
+#这一版兼容PGGAN和BIGGAN: 主要改变最后一层，增加FC
+#PGGAN: 加一个fc, 和原D类似
+#BIGGGAN,加两个fc，各128channel，其中一个是标签，完成128->1000的映射
+
 import torch
 import torch.nn as nn 
 from torch.nn import init
@@ -100,7 +104,7 @@ class BEBlock(nn.Module):
 
 
 class BE(nn.Module):
-    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3, pggan=False):
+    def __init__(self, startf=16, maxf=512, layer_count=9, latent_size=512, channels=3, pggan=False, biggan=False):
         super().__init__()
         self.maxf = maxf
         self.startf = startf
@@ -134,7 +138,12 @@ class BE(nn.Module):
 
         self.pggan = pggan
         if pggan:
-            self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
+            #self.new_final = nn.Conv2d(512, 512, 4, 1, 0, bias=True)
+            self.new_final = ln.Linear(512 * 16, latent_size, gain=1)
+
+        self.biggan = biggan
+            self.new_final_1 = ln.Linear(256, 128, gain=1)
+            self.new_final_2 = ln.Linear(256, 1000, gain=1)
 
     #将w逆序，以保证和G的w顺序, block_num控制progressive
     def forward(self, x, block_num=9):
@@ -149,7 +158,11 @@ class BE(nn.Module):
             else:
                 w = torch.cat((w_,w),dim=1)
         if self.pggan:
-            x = self.new_final(x)
+            #x = self.new_final(x)
+            x = self.new_final(x.view(x.shape[0],-1))
+        if self.biggan:
+            x = self.new_final_1(x.view(x.shape[0],-1))
+            w = self.new_final_2(x.view(x.shape[0],-1))
         return x, w
 
 #test
