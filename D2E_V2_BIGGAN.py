@@ -111,20 +111,20 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size)
         label = np.random.randint(1000,size=batch_size) # 生成标签
         label = one_hot(label)
-        z = torch.tensor(z, dtype=torch.float)
-        w1 = torch.tensor(label, dtype=torch.float)
-        synthesis_kwargs = torch.tensor(synthesis_kwargs, dtype=torch.float)
+        z = torch.tensor(z, dtype=torch.float).cuda()
+        w1 = torch.tensor(label, dtype=torch.float).cuda()
+        synthesis_kwargs = torch.tensor(synthesis_kwargs, dtype=torch.float).cuda()
         with torch.no_grad(): #这里需要生成图片和变量
-            imgs1 = G(z.cuda(), w1.cuda(), synthesis_kwargs.cuda())
+            imgs1 = G(z, w1, synthesis_kwargs)
 
-        const2,w2 = E(imgs1.cuda())
-        imgs2=G(const2,w2,synthesis_kwargs.cuda())
+        z2,w2 = E(imgs1.cuda())
+        imgs2=G(z2, w2, synthesis_kwargs)
         
         E_optimizer.zero_grad()
 
 #Latent Space
     ##--C
-        loss_c, loss_c_info = space_loss(z,const2,image_space = False)
+        loss_c, loss_c_info = space_loss(z,z2,image_space = False)
         E_optimizer.zero_grad()
         loss_c.backward(retain_graph=True)
         E_optimizer.step()
