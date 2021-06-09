@@ -6,7 +6,7 @@ import torchvision
 import model.E_v3_PG_BIG as BE
 from model.utils.custom_adam import LREQAdam
 from model.utils.biggan_config import BigGANConfig
-import model.biggan.biggan_generator as BigGAN
+from model.biggan.biggan_generator import BigGAN
 import lpips
 import metric.pytorch_ssim as pytorch_ssim
 from metric.grad_cam import GradCAM, GradCamPlusPlus, GuidedBackPropagation, mask2cam
