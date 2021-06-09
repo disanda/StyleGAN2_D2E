@@ -142,6 +142,7 @@ class BE(nn.Module):
             self.new_final = ln.Linear(512 * 16, latent_size, gain=1)
 
         self.biggan = biggan
+        if biggan:
             self.new_final_1 = ln.Linear(256, 128, gain=1)
             self.new_final_2 = ln.Linear(256, 1000, gain=1)
 
