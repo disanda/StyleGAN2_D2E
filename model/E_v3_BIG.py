@@ -119,9 +119,9 @@ class BEBlock(nn.Module):
         self.outputs = outputs
 
         if self.inputs != self.outputs:
+            self.batch_norm_3 = BigGANBatchNorm(inputs, condition_vector_dim=256, n_stats=51, eps=1e-12, conditional=True)
             self.conv_3 = ln.Conv2d(inputs, outputs, 1, 1, 0)
             #self.instance_norm_3 = nn.InstanceNorm2d(outputs, affine=True, eps=1e-8)
-            self.batch_norm_3 = BigGANBatchNorm(outputs, condition_vector_dim=256, n_stats=51, eps=1e-12, conditional=True)
         with torch.no_grad():
             self.bias_1.zero_()
             self.bias_2.zero_()
