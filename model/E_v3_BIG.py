@@ -208,7 +208,7 @@ class BE(nn.Module):
         if biggan:
             self.new_final_1 = ln.Linear(8192, 256, gain=1) # 8192 = 512 * 16
             self.new_final_2 = ln.Linear(256, 128, gain=1)
-            self.new_final_3 = ln.Linear(256, 1000, gain=1) # 
+            #self.new_final_3 = ln.Linear(256, 1000, gain=1) # 
 
     #将w逆序，以保证和G的w顺序, block_num控制progressive,在其他网络中无效
     def forward(self, x, cond_vector, block_num=9):
@@ -228,8 +228,8 @@ class BE(nn.Module):
         if self.biggan:
             x = self.new_final_1(x.view(x.shape[0],-1)) #[n, 256], cond_vector
             z = self.new_final_2(x) # [n, 128]
-            w_ = self.new_final_3(x) # [n, 1000]
-        return z, w_, x
+            #w_ = self.new_final_3(x) # [n, 1000]
+        return z, x
 
 #test
 # E = BE(startf=64, maxf=512, layer_count=7, latent_size=512, channels=3)

@@ -20,6 +20,7 @@ torch.backends.cudnn.deterministic = False # faster
 # 2.网络中的IN改为CBN
 # 3.condVector加入latent_space
 # 4.降低训练难度，每一轮标签统一
+# 5.进一步降低难度，不在预测标签
 # -.网络的Z改为W
 
 
@@ -127,10 +128,10 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         with torch.no_grad(): #这里需要生成图片和变量
             imgs1, cond_vector = G(z, w1, truncation)
 
-        z2, w2, cond_vector2 = E(imgs1.cuda(), cond_vector)
-        w2_ = w2.argmax(dim=1)
-        w2_ = one_hot(w2_).requires_grad_(True).cuda()
-        imgs2, _=G(z2, w2_, truncation)
+        z2, cond_vector2 = E(imgs1.cuda(), cond_vector)
+        #w2_ = w2.argmax(dim=1)
+        #w2_ = one_hot(w2_).requires_grad_(True).cuda()
+        imgs2, _=G(z2, w1, truncation)
         
         E_optimizer.zero_grad()
 
@@ -142,16 +143,16 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         E_optimizer.step()
 
     ##--W
-        loss_w, loss_w_info = space_loss(w1,w2,image_space = False)
+        loss_w, loss_w_info = space_loss(cond_vector,cond_vector2,image_space = False)
         E_optimizer.zero_grad()
         loss_w.backward(retain_graph=True)
         E_optimizer.step()
 
-    ##--cond_vector
-        loss_condVector, loss_condVector_info = space_loss(cond_vector,cond_vector2,image_space = False)
-        E_optimizer.zero_grad()
-        loss_condVector.backward(retain_graph=True)
-        E_optimizer.step()
+    # ##--cond_vector
+    #     loss_condVector, loss_condVector_info = space_loss(cond_vector,cond_vector2,image_space = False)
+    #     E_optimizer.zero_grad()
+    #     loss_condVector.backward(retain_graph=True)
+    #     E_optimizer.step()
 
 #Image Space
         mask_1 = grad_cam_plus_plus(imgs1,None) #[c,1,h,w]
@@ -308,7 +309,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('./result'): os.mkdir('./result')
 
-    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot_CBN_condVector_fixlabel"
+    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot_CBN_condVector_fixlabel_v2"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
