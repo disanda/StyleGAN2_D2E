@@ -308,7 +308,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('./result'): os.mkdir('./result')
 
-    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot_CBN_condVector"
+    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot_CBN_condVector_fixlabel"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"
