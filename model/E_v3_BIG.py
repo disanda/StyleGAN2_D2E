@@ -12,7 +12,7 @@
 #BIGGAN,加两个fc，各128channel，其中一个是标签，完成128->1000的映射
 #BIGGAN 改进思路1: IN替换CBN (本例实现)
 #BIGGAN 改进思路2: G加w，和E的w对称 (未实现)
-
+import math
 import torch
 import torch.nn as nn 
 from torch.nn import init
