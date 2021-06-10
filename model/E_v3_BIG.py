@@ -224,11 +224,11 @@ class BE(nn.Module):
             #     w = torch.cat((w_,w),dim=1)
         if self.pggan:
             #x = self.new_final(x)
-            x = nn.utils.spectral_norm(self.new_final(x.view(x.shape[0],-1)))
+            x = self.new_final(x.view(x.shape[0],-1))
         if self.biggan:
-            x = nn.utils.spectral_norm(self.new_final_1(x.view(x.shape[0],-1))) #[n, 256], cond_vector
-            z = nn.utils.spectral_norm(self.new_final_2(x)) # [n, 128]
-            w_ = nn.utils.spectral_norm(self.new_final_3(x)) # [n, 1000]
+            x = self.new_final_1(x.view(x.shape[0],-1)) #[n, 256], cond_vector
+            z = self.new_final_2(x) # [n, 128]
+            w_ = self.new_final_3(x) # [n, 1000]
         return z, w_, x
 
 #test
