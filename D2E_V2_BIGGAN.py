@@ -19,6 +19,7 @@ torch.backends.cudnn.deterministic = False # faster
 # 1.难度优化: 输出的label来一组 argmax()再onehot
 # 2.网络中的IN改为CBN
 # 3.condVector加入latent_space
+# 4.降低训练难度，每一轮标签统一
 # -.网络的Z改为W
 
 
@@ -115,7 +116,10 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
     for epoch in range(0,250001):
         set_seed(epoch%30000)
         z = truncated_noise_sample(truncation=synthesis_kwargs, batch_size=batch_size, seed=epoch%30000)
-        label = np.random.randint(1000,size=batch_size) # 生成标签
+        #label = np.random.randint(1000,size=batch_size) # 生成标签
+        flag = np.random.randint(1000)
+        label = np.ones(batch_size)
+        label = flag * label
         label = one_hot(label)
         z = torch.tensor(z, dtype=torch.float).cuda()
         w1 = torch.tensor(label, dtype=torch.float).cuda()
@@ -125,8 +129,8 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
 
         z2, w2, cond_vector2 = E(imgs1.cuda(), cond_vector)
         w2_ = w2.argmax(dim=1)
-        w2_ = one_hot(w2).requires_grad_(True).cuda()
-        imgs2=G(z2, w2_, truncation)
+        w2_ = one_hot(w2_).requires_grad_(True).cuda()
+        imgs2, _=G(z2, w2_, truncation)
         
         E_optimizer.zero_grad()
 
