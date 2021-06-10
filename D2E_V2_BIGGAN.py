@@ -217,7 +217,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         print('---------LatentSpace--------')
         print('loss_w_info: %s'%loss_w_info)
         print('loss_c_info: %s'%loss_c_info)
-        print('loss_condVector_info: %s'%loss_condVector_info)
+        #print('loss_condVector_info: %s'%loss_condVector_info)
 
         it_d += 1
         writer.add_scalar('loss_mask_mse', loss_mask_info[0][0], global_step=it_d)
@@ -300,7 +300,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
                 print('---------LatentSpace--------',file=f)
                 print('loss_w_info: %s'%loss_w_info,file=f)
                 print('loss_c_info: %s'%loss_c_info,file=f)
-                print('loss_condVector_info: %s'%loss_condVector_info,file=f)
+                #print('loss_condVector_info: %s'%loss_condVector_info,file=f)
             if epoch % 5000 == 0:
                 torch.save(E.state_dict(), resultPath1_2+'/E_model_ep%d.pth'%epoch)
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
