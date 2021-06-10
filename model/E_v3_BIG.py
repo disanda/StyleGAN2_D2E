@@ -106,7 +106,7 @@ class BEBlock(nn.Module):
         self.noise_weight_2.data.zero_()
         self.bias_2 = nn.Parameter(torch.Tensor(1, outputs, 1, 1))
         #self.instance_norm_2 = nn.InstanceNorm2d(outputs, affine=True, eps=1e-8)
-        self.batch_norm_2 = BigGANBatchNorm(outputs, condition_vector_dim=256, n_stats=51, eps=1e-12, conditional=True)
+        self.batch_norm_2 = BigGANBatchNorm(inputs, condition_vector_dim=256, n_stats=51, eps=1e-12, conditional=True)
         #self.inver_mod2 = ln.Linear(2 * inputs, latent_size)
         if has_second_conv:
             if fused_scale:
