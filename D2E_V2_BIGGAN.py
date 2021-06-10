@@ -18,7 +18,9 @@ torch.backends.cudnn.deterministic = False # faster
 
 # 1.难度优化: 输出的label来一组 argmax()再onehot
 # 2.网络中的IN改为CBN
-# 3.网络的Z改为W
+# 3.condVector加入latent_space
+# -.网络的Z改为W
+
 
 def one_hot(x, class_count=1000):
     # 第一构造一个[class_count, class_count]的对角线为1的向量
@@ -119,12 +121,12 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         w1 = torch.tensor(label, dtype=torch.float).cuda()
         truncation = torch.tensor(synthesis_kwargs, dtype=torch.float).cuda()
         with torch.no_grad(): #这里需要生成图片和变量
-            imgs1 = G(z, w1, truncation)
+            imgs1, cond_vector = G(z, w1, truncation)
 
-        z2,w2 = E(imgs1.cuda())
-        w2 = w2.argmax()
-        w2 = one_hot(w2)
-        imgs2=G(z2, w2, truncation)
+        z2, w2, cond_vector2 = E(imgs1.cuda(), cond_vector)
+        w2_ = w2.argmax(dim=1)
+        w2_ = one_hot(w2).requires_grad_(True).cuda()
+        imgs2=G(z2, w2_, truncation)
         
         E_optimizer.zero_grad()
 
@@ -139,6 +141,12 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         loss_w, loss_w_info = space_loss(w1,w2,image_space = False)
         E_optimizer.zero_grad()
         loss_w.backward(retain_graph=True)
+        E_optimizer.step()
+
+    ##--cond_vector
+        loss_condVector, loss_condVector_info = space_loss(cond_vector,cond_vector2,image_space = False)
+        E_optimizer.zero_grad()
+        loss_condVector.backward(retain_graph=True)
         E_optimizer.step()
 
 #Image Space
@@ -204,6 +212,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
         print('---------LatentSpace--------')
         print('loss_w_info: %s'%loss_w_info)
         print('loss_c_info: %s'%loss_c_info)
+        print('loss_condVector_info: %s'%loss_condVector_info)
 
         it_d += 1
         writer.add_scalar('loss_mask_mse', loss_mask_info[0][0], global_step=it_d)
@@ -286,6 +295,7 @@ def train(generator = None, tensor_writer = None, synthesis_kwargs = None):
                 print('---------LatentSpace--------',file=f)
                 print('loss_w_info: %s'%loss_w_info,file=f)
                 print('loss_c_info: %s'%loss_c_info,file=f)
+                print('loss_condVector_info: %s'%loss_condVector_info,file=f)
             if epoch % 5000 == 0:
                 torch.save(E.state_dict(), resultPath1_2+'/E_model_ep%d.pth'%epoch)
                 #torch.save(Gm.buffer1,resultPath1_2+'/center_tensor_ep%d.pt'%epoch)
@@ -294,7 +304,7 @@ if __name__ == "__main__":
 
     if not os.path.exists('./result'): os.mkdir('./result')
 
-    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot"
+    resultPath = "./result/BigGAN256_attentionV2_argMax2OneHot_CBN_condVector"
     if not os.path.exists(resultPath): os.mkdir(resultPath)
 
     resultPath1_1 = resultPath+"/imgs"

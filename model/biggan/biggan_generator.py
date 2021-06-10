@@ -237,7 +237,6 @@ class Generator(nn.Module):
 
         z = z.permute(0, 3, 1, 2).contiguous() # [5, 2048, 4, 4]
 
-
         for i, layer in enumerate(self.layers): #其中有一层是 self-attention
             if isinstance(layer, GenBlock):
                 z = layer(z, cond_vector, truncation) # [5, 2048, 4, 4]
@@ -298,10 +297,10 @@ class BigGAN(nn.Module):
 
         embed = self.embeddings(class_label)
         #print(embed.shape) # 1000->128
-        cond_vector = torch.cat((z, embed), dim=1)
+        cond_vector = torch.cat((z, embed), dim=1) # 128->256
 
         z = self.generator(cond_vector, truncation)
-        return z
+        return z, cond_vector
 
 
 if __name__ == "__main__":
