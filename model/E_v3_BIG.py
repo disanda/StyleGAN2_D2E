@@ -214,14 +214,14 @@ class BE(nn.Module):
     def forward(self, x, cond_vector, block_num=9):
         #x = self.FromRGB[9-block_num](x) #每个block一个
         x = self.FromRGB(x)
-        w = torch.tensor(0)
+        #w = torch.tensor(0)
         for i in range(9-block_num,self.layer_count):
             x,w1,w2 = self.decode_block[i](x, cond_vector, truncation=0.4)
-            w_ = torch.cat((w2.view(x.shape[0],1,512),w1.view(x.shape[0],1,512)),dim=1) # [b,2,512]
-            if i == (9-block_num): #最后一层
-                w = w_ # [b,n,512]
-            else:
-                w = torch.cat((w_,w),dim=1)
+            #w_ = torch.cat((w2.view(x.shape[0],1,512),w1.view(x.shape[0],1,512)),dim=1) # [b,2,512]
+            # if i == (9-block_num): #最后一层
+            #     w = w_ # [b,n,512]
+            # else:
+            #     w = torch.cat((w_,w),dim=1)
         if self.pggan:
             #x = self.new_final(x)
             x = nn.utils.spectral_norm(self.new_final(x.view(x.shape[0],-1)))
