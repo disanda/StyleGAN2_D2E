@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import torchvision
-import model.E_v3_PG_BIG as BE
+import model.E_v3_BIG as BE
 from model.utils.custom_adam import LREQAdam
 from model.utils.biggan_config import BigGANConfig
 from model.biggan.biggan_generator import BigGAN
