@@ -26,6 +26,9 @@ import model.utils.lreq as ln
 # 比第0版多了残差, 每一层的两个(conv/line)输出的w1和w2合并为1个w
 # 比第1版加了要学习的bias_1和bias_2，网络顺序和第1版有所不同(更对称)
 
+def snlinear(eps=1e-12, **kwargs):
+    return nn.utils.spectral_norm(nn.Linear(**kwargs), eps=eps)
+
 class BigGANBatchNorm(nn.Module):
     """ This is a batch norm module that can handle conditional input and can be provided with pre-computed
         activation means and variances for various truncation parameters.
